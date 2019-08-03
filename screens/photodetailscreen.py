@@ -88,7 +88,7 @@ class PopUpActions(ModalView):
     btn_target = ObjectProperty()
 
     def __init__(self, x=0, y=0, **kwargs):
-        super().__init__(**kwargs)
+        super(PopUpActions, self).__init__(**kwargs)
         self.pos_hint = {'x': x / Window.width, 'y': y / Window.height}
 
     def localize(self):
