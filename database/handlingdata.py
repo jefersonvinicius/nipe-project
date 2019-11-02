@@ -1,6 +1,8 @@
 import sqlite3
 import os
+from kivy.utils import platform
 
+DB_FILE_PATH = 'geolocalizationapp.db'
 
 class HandlerOfLocationsData:
 
@@ -9,8 +11,6 @@ class HandlerOfLocationsData:
     def __init__(self, name_file):
         self.name_file = name_file
         if not os.path.exists(name_file):
-            with sqlite3.connect(self.name_file) as connection:
-                print("Connected")
             self.create_table()
             self.insert_data_example()
 
@@ -79,4 +79,4 @@ class HandlerOfLocationsData:
         return d
 
 
-db = HandlerOfLocationsData('geolocalizationapp.db')
+db = HandlerOfLocationsData(DB_FILE_PATH)

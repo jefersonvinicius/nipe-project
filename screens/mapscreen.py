@@ -1,3 +1,4 @@
+from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.properties import ObjectProperty
 from kivy.garden.mapview import MapMarker
@@ -31,7 +32,10 @@ Builder.load_string('''
 
 ''')
 
+
 class MapScreen(Screen):
+
+    app = ObjectProperty()
 
     map_view = ObjectProperty()
     btn_open_modal = ObjectProperty()
@@ -42,10 +46,14 @@ class MapScreen(Screen):
 
     def __init__(self, **kwargs):
         super(MapScreen, self).__init__(**kwargs)
+        self.app = App.get_running_app()
         self.modal_select_location = ModalSelectLocation(self)
         self.recycle_view_select_location = self.modal_select_location.recycleview
         self.marker.bind(on_release=self.marker_action)
 
+    def on_enter(self, *args):
+        self.recycle_view_select_location.data = self.app.locations
+        
     def open_modal(self):
         self.modal_select_location.open()
 

@@ -20,22 +20,24 @@ Builder.load_string('''
         ScreenManager:
             id: manager
             transition: FadeTransition(duration=0.01)
-            CameraScreen:
             MapScreen:
+            CameraScreen:
             GalleryScreen:
         NavigationBar:
             pos_hint: {"top": 0}
+
             NavigationButton:
                 group: "navbtns"
-                state: "down"
                 allow_no_selection: False
                 path_icon_normal: "assets/icons/camera-normal.png"
                 path_icon_active: "assets/icons/camera-active.png"
                 on_release:
                     manager.current = "camerascreen"
+                    manager.current_screen.access_camera()
 
             NavigationButton:
                 id: btn_mapscreen
+                state: "down"
                 group: "navbtns"
                 allow_no_selection: False
                 path_icon_normal: "assets/icons/map-normal.png"

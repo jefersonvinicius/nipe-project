@@ -5,6 +5,7 @@ from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.animation import Animation
 from kivy.lang import Builder
+from kivy.metrics import dp
 
 import os
 
@@ -27,14 +28,19 @@ Builder.load_string('''
         orientation: 'vertical'
         ButtonPopUpActions:
             text: "Localizar"
+            size_hint_y: None
+            height: '50dp'
             on_release:
                 root.localize()
         ButtonPopUpActions:
             text: "Excluir"
+            size_hint_y: None
+            height: '50dp'
             on_release:
                 root.exclude()
 
 <PhotoDetailScreen>:
+    app: app
     name: "photodetailscreen"
     btn_actions: btn_menu_actions
     BoxLayout:
@@ -55,6 +61,8 @@ Builder.load_string('''
             size_hint_y: None
             height: "60dp"
             ButtonIcon:
+                size_hint_x: None
+                width: '50dp'
                 path_icon: "assets/icons/arrow-left.png"
                 on_release:
                     root.manager.current = "containerscreens"
@@ -62,11 +70,15 @@ Builder.load_string('''
                 text: root.photo_name
             ButtonIcon:
                 id: btn_menu_actions
+                size_hint_x: None
+                width: '50dp'
                 path_icon: "assets/icons/menu.png"
                 on_release:
                     root.open_popup(self)
-        Image:
-            source: root.photo_path
+        BoxLayout:
+            padding: 20
+            Image:
+                source: root.photo_path
 ''')
 
 class ButtonPopUpActions(Button):
@@ -74,13 +86,13 @@ class ButtonPopUpActions(Button):
     def on_touch_down(self, touch):
         if self.collide_point(*touch.pos):
             Animation(background_color=(.9, .9, .9, 1), duration=0.1).start(self)
-        super().on_touch_down(touch)
+        super(ButtonPopUpActions, self).on_touch_down(touch)
 
     def on_touch_up(self, touch):
         Animation(background_color=(1, 1, 1, 1), duration=0.1).start(self)
         if self.collide_point(*touch.pos):
             self.parent.parent.dismiss()
-        super().on_touch_up(touch)
+        super(ButtonPopUpActions, self).on_touch_up(touch)
 
 
 class PopUpActions(ModalView):
@@ -89,7 +101,12 @@ class PopUpActions(ModalView):
 
     def __init__(self, x=0, y=0, **kwargs):
         super(PopUpActions, self).__init__(**kwargs)
-        self.pos_hint = {'x': x / Window.width, 'y': y / Window.height}
+
+    def on_pre_open(self):
+        self.pos_hint = {
+            'x': (Window.width - (0.4 * Window.width) ) / Window.width,
+            'y': (Window.height - dp(self.height)) / Window.height
+        }
 
     def localize(self):
         pass
@@ -98,6 +115,9 @@ class PopUpActions(ModalView):
         pass
 
 class PhotoDetailScreen(Screen):
+
+    app = ObjectProperty()
+
     photo_id = NumericProperty()
     photo_name = StringProperty()
     lat = NumericProperty()
@@ -110,7 +130,7 @@ class PhotoDetailScreen(Screen):
     btn_actions = ObjectProperty()
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super(PhotoDetailScreen, self).__init__(**kwargs)
         self.popup = PopUpActions()
         self.popup.open()
         self.popup.dismiss()
@@ -150,9 +170,8 @@ class PhotoDetailScreen(Screen):
         try:
             db.delete_location(self.photo_id)
             os.remove(self.photo_path)
+            self.app.locations = db.get_all_locations()
             self.manager.current = "containerscreens"
-            self.manager.current_screen.manager_screens.current_screen.gallery_data = db.get_all_locations()
-            self.manager.current_screen.manager_screens.get_screen("mapscreen").recycle_view_select_location.data = db.get_all_locations()
         except Exception as e:
             print(e)
 

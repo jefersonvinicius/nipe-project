@@ -1,4 +1,6 @@
 .idea
+.buildozer
 __pycache__
 cache
 backup
+bin

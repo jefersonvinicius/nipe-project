@@ -1,13 +1,7 @@
+from kivy.app import App
 from kivy.uix.recycleview import RecycleView
 from kivy.properties import ObjectProperty
 from kivy.lang import Builder
-
-data_example = [
-    {"id": 1, "name": "Carmo do Rio Claro", "lat": -20.97152, "lon": -46.1234176,
-     "date": "23/11/2017", "photo_path": "locations/carmodorioclaro.jpg"},
-    {"id": 2, "name": "Alterosa", "lat": -21.249214, "lon": -46.1478561,
-     "date": "22/01/2018", "photo_path": "locations/alterosa.jpg"}
-]
 
 from database.handlingdata import db
 
@@ -42,4 +36,3 @@ class RecycleModalSelectLocation(RecycleView):
 
     def __init__(self, **kwargs):
         super(RecycleModalSelectLocation, self).__init__(**kwargs)
-        self.data = db.get_all_locations()

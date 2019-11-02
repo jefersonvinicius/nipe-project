@@ -1,5 +1,4 @@
-from kivy.uix.button import ButtonBehavior, Button
-from kivy.uix.widget import Widget
+from kivy.uix.button import Button
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivy.lang import Builder
 
