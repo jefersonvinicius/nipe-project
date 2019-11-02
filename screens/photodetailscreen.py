@@ -1,5 +1,6 @@
 from kivy.uix.screenmanager import Screen, FallOutTransition
 from kivy.properties import StringProperty, NumericProperty, ObjectProperty
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.modalview import ModalView
 from kivy.core.window import Window
 from kivy.uix.button import Button
@@ -10,39 +11,36 @@ from kivy.metrics import dp
 import os
 
 from database.handlingdata import db
+from components.buttons import ButtonTransparent
 
 
 Builder.load_string('''
-<ButtonPopUpActions>:
-    color: [0, 0, 0, 1]
-    background_color: [1, 1, 1, 1]
-    background_normal: ''
-    background_down: ''
-    text_size: self.size
-    valign: 'center'
-    halign: 'left'
+#:import toRgb kivy.utils.get_color_from_hex
 
-<PopUpActions>:
-    size_hint: .4, None
-    BoxLayout:
-        orientation: 'vertical'
-        ButtonPopUpActions:
-            text: "Localizar"
-            size_hint_y: None
-            height: '50dp'
-            on_release:
-                root.localize()
-        ButtonPopUpActions:
-            text: "Excluir"
-            size_hint_y: None
-            height: '50dp'
-            on_release:
-                root.exclude()
+<ToolsBar>:
+    size_hint_y: None
+    height: '50dp'
+
+    canvas.before:
+        Color:
+            rgb: toRgb('#282828')
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    ButtonTransparent:
+        text: 'EXCLUIR'
+        on_release:
+            root.exclude_button_event()
+
+    ButtonTransparent:
+        text: 'LOCALIZAR'
+        on_release:
+            root.localize_button_event()
 
 <PhotoDetailScreen>:
     app: app
     name: "photodetailscreen"
-    btn_actions: btn_menu_actions
     BoxLayout:
         canvas.before:
             Color:
@@ -54,7 +52,7 @@ Builder.load_string('''
         BoxLayout:
             canvas.before:
                 Color:
-                    rgba: (0.3, 0.3, 0.3, 1)
+                    rgb: toRgb('#282828')
                 Rectangle:
                     pos: self.pos
                     size: self.size
@@ -68,51 +66,28 @@ Builder.load_string('''
                     root.manager.current = "containerscreens"
             Label:
                 text: root.photo_name
-            ButtonIcon:
-                id: btn_menu_actions
-                size_hint_x: None
-                width: '50dp'
-                path_icon: "assets/icons/menu.png"
-                on_release:
-                    root.open_popup(self)
+
         BoxLayout:
             padding: 20
+
+            canvas.before:
+                Color:
+                    rgb: toRgb('#fefefe')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
             Image:
                 source: root.photo_path
+        ToolsBar:
+            exclude_button_event: root.exclude
+            localize_button_event: root.localize
 ''')
 
-class ButtonPopUpActions(Button):
 
-    def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos):
-            Animation(background_color=(.9, .9, .9, 1), duration=0.1).start(self)
-        super(ButtonPopUpActions, self).on_touch_down(touch)
-
-    def on_touch_up(self, touch):
-        Animation(background_color=(1, 1, 1, 1), duration=0.1).start(self)
-        if self.collide_point(*touch.pos):
-            self.parent.parent.dismiss()
-        super(ButtonPopUpActions, self).on_touch_up(touch)
-
-
-class PopUpActions(ModalView):
-
-    btn_target = ObjectProperty()
-
-    def __init__(self, x=0, y=0, **kwargs):
-        super(PopUpActions, self).__init__(**kwargs)
-
-    def on_pre_open(self):
-        self.pos_hint = {
-            'x': (Window.width - (0.4 * Window.width) ) / Window.width,
-            'y': (Window.height - dp(self.height)) / Window.height
-        }
-
-    def localize(self):
-        pass
-
-    def exclude(self):
-        pass
+class ToolsBar(BoxLayout):
+    
+    exclude_button_event = ObjectProperty()
+    localize_button_event = ObjectProperty()
 
 class PhotoDetailScreen(Screen):
 
@@ -125,21 +100,11 @@ class PhotoDetailScreen(Screen):
     date = StringProperty()
     photo_path = StringProperty()
 
-    # Widgets
-    popup = ObjectProperty()
-    btn_actions = ObjectProperty()
-
     def __init__(self, **kwargs):
         super(PhotoDetailScreen, self).__init__(**kwargs)
-        self.popup = PopUpActions()
-        self.popup.open()
-        self.popup.dismiss()
 
     def on_enter(self, *args):
-        self.popup = PopUpActions(self.btn_actions.x + self.btn_actions.width - self.popup.width, self.btn_actions.y - self.btn_actions.height/2)
         Window.bind(on_keyboard=self.back_screen)
-        self.popup.localize = self.localize
-        self.popup.exclude = self.exclude
         self.manager.transition = FallOutTransition(duration=0.2)
 
     def on_pre_leave(self, *args):
@@ -159,7 +124,6 @@ class PhotoDetailScreen(Screen):
         self.photo_path = data.get("photopath")
 
     def localize(self):
-        self.popup.dismiss()
         self.manager.get_screen("containerscreens").manager_screens.current = "mapscreen"
         self.manager.get_screen("containerscreens").manager_screens.current_screen.localize(id_location=self.photo_id)
         self.manager.get_screen("containerscreens").btn_mapscreen.state = "down"
@@ -167,14 +131,11 @@ class PhotoDetailScreen(Screen):
         self.manager.current = "containerscreens"
 
     def exclude(self):
-        try:
-            db.delete_location(self.photo_id)
+        db.delete_location(self.photo_id)
+        self.app.locations = db.get_all_locations()
+        self.manager.current = "containerscreens"
+        
+        try:  
             os.remove(self.photo_path)
-            self.app.locations = db.get_all_locations()
-            self.manager.current = "containerscreens"
         except Exception as e:
             print(e)
-
-    def open_popup(self, btn):
-        self.popup.btn_target = btn
-        self.popup.open()

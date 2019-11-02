@@ -3,6 +3,11 @@ from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivy.lang import Builder
 
 Builder.load_string('''
+<ButtonTransparent>
+    background_normal: ""
+    background_down: ""
+    background_color: [0, 0, 0, 0]
+
 <ButtonTextAndIcon>:
     icon: icon
     background_normal: ""
@@ -32,10 +37,15 @@ Builder.load_string('''
         center_y: self.parent.center_y
 ''')
 
+class ButtonTransparent(Button):
+    pass
+
+
 class ButtonTextAndIcon(Button):
     path_icon = StringProperty()
     icon = ObjectProperty()
     height_icon = NumericProperty()
+
 
 class ButtonIcon(Button):
     pass

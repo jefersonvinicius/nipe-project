@@ -56,4 +56,9 @@ Builder.load_string('''
 ''')
 
 class ContainerScreens(Screen):
+    
     manager_screens = ObjectProperty()
+
+    def on_enter(self):
+        if self.manager_screens.current == 'galleryscreen':
+            self.manager_screens.current_screen.update_data()

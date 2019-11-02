@@ -1,6 +1,8 @@
 .idea
+.vscode
 .buildozer
 __pycache__
 cache
 backup
 bin
+locations

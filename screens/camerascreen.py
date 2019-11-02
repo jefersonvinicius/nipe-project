@@ -29,6 +29,7 @@ Builder.load_string('''
             height: '100dp'
             TextInput:
                 id: input_name_photo_id
+                multline: False
             BoxLayout:
                 spacing: 10
                 padding: 10
@@ -72,7 +73,7 @@ class CameraScreen(Screen):
         db.insert_location(location_data)
         self.input_name_photo.text = ''
         self.app.locations = db.get_all_locations()
-        
+
         Toast.show('Salvo com sucesso!')
 
     def go_mapscreen(self):

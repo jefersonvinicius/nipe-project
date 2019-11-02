@@ -31,8 +31,7 @@ class GalleryScreen(Screen):
         super(GalleryScreen, self).__init__(**kwargs)
 
     def on_enter(self, *args):
-        self.recycle_gallery.data = self.app.locations
-        # self.gallery_data = self.app.locations
+        self.update_data()
 
-    def on_gallery_data(self, *args):
-        self.recycle_gallery.data = self.gallery_data
+    def update_data(self):
+        self.recycle_gallery.data = self.app.locations
