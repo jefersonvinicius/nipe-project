@@ -1,5 +1,7 @@
 # Projeto NIPE
 
+## Leia o artigo em [aqui](results/article.pdf)
+
 ### Como configurar câmera do android? :camera:
 
 No arquivo `.buildozer\android\platform\python-for-android\pythonforandroid\bootstraps\sdl2\build\templates\AndroidManifest.tmpl.xml` adicione os seguintes trechos de códigos:
